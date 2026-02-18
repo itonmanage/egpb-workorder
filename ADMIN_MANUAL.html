@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือผู้ดูแลระบบ - EGPB Ticket System</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Sarabun', sans-serif;
+            line-height: 1.8;
+            color: #1a1a1a;
+            background: #ffffff;
+            font-size: 14pt;
+        }
+        
+        .container {
+            max-width: 210mm;
+            margin: 0 auto;
+            padding: 20mm;
+        }
+        
+        /* Cover Page */
+        .cover {
+            text-align: center;
+            padding: 60mm 0;
+            page-break-after: always;
+        }
+        
+        .cover h1 {
+            font-size: 36pt;
+            color: #16a34a;
+            margin-bottom: 10mm;
+            font-weight: 700;
+        }
+        
+        .cover h2 {
+            font-size: 24pt;
+            color: #4b5563;
+            margin-bottom: 5mm;
+            font-weight: 400;
+        }
+        
+        .cover .version {
+            font-size: 12pt;
+            color: #6b7280;
+            margin-top: 20mm;
+        }
+        
+        /* Table of Contents */
+        .toc {
+            page-break-after: always;
+            margin-bottom: 10mm;
+        }
+        
+        .toc h2 {
+            font-size: 24pt;
+            color: #16a34a;
+            margin-bottom: 8mm;
+            border-bottom: 3px solid #16a34a;
+            padding-bottom: 3mm;
+        }
+        
+        .toc ul {
+            list-style: none;
+        }
+        
+        .toc ul li {
+            margin: 4mm 0;
+            font-size: 14pt;
+        }
+        
+        .toc ul ul li {
+            margin-left: 8mm;
+            font-size: 12pt;
+            color: #4b5563;
+        }
+        
+        /* Headings */
+        h1 {
+            font-size: 28pt;
+            color: #16a34a;
+            margin: 10mm 0 6mm 0;
+            page-break-before: always;
+            border-bottom: 3px solid #16a34a;
+            padding-bottom: 3mm;
+        }
+        
+        h2 {
+            font-size: 20pt;
+            color: #059669;
+            margin: 8mm 0 4mm 0;
+            page-break-after: avoid;
+        }
+        
+        h3 {
+            font-size: 16pt;
+            color: #047857;
+            margin: 6mm 0 3mm 0;
+            page-break-after: avoid;
+        }
+        
+        h4 {
+            font-size: 14pt;
+            color: #065f46;
+            margin: 4mm 0 2mm 0;
+        }
+        
+        /* Paragraphs and Lists */
+        p {
+            margin: 3mm 0;
+            text-align: justify;
+        }
+        
+        ul, ol {
+            margin: 3mm 0 3mm 8mm;
+        }
+        
+        li {
+            margin: 2mm 0;
+        }
+        
+        /* Code Blocks */
+        code {
+            background: #f3f4f6;
+            padding: 1mm 2mm;
+            border-radius: 1mm;
+            font-family: 'Courier New', monospace;
+            font-size: 11pt;
+            color: #dc2626;
+        }
+        
+        pre {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 4mm;
+            border-radius: 2mm;
+            overflow-x: auto;
+            margin: 4mm 0;
+            page-break-inside: avoid;
+        }
+        
+        pre code {
+            background: transparent;
+            color: #10b981;
+            padding: 0;
+            font-size: 10pt;
+        }
+        
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 4mm 0;
+            page-break-inside: avoid;
+        }
+        
+        th, td {
+            border: 1px solid #d1d5db;
+            padding: 3mm;
+            text-align: left;
+        }
+        
+        th {
+            background: #16a34a;
+            color: white;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        /* Alert Boxes */
+        .alert {
+            padding: 4mm;
+            margin: 4mm 0;
+            border-left: 4mm solid;
+            border-radius: 2mm;
+            page-break-inside: avoid;
+        }
+        
+        .alert-info {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+        
+        .alert-danger {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .alert strong {
+            display: block;
+            margin-bottom: 2mm;
+            font-size: 12pt;
+        }
+        
+        /* Step Boxes */
+        .step {
+            background: #f0fdf4;
+            border: 2px solid #16a34a;
+            padding: 4mm;
+            margin: 4mm 0;
+            border-radius: 2mm;
+            page-break-inside: avoid;
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #16a34a;
+            color: white;
+            width: 8mm;
+            height: 8mm;
+            line-height: 8mm;
+            text-align: center;
+            border-radius: 50%;
+            margin-right: 3mm;
+            font-weight: 700;
+        }
+        
+        /* Images */
+        img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 4mm auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 2mm;
+        }
+        
+        /* Page Break Utilities */
+        .page-break {
+            page-break-after: always;
+        }
+        
+        .no-break {
+            page-break-inside: avoid;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                max-width: 100%;
+                padding: 15mm;
+            }
+            
+            a {
+                color: #1a1a1a;
+                text-decoration: none;
+            }
+            
+            .no-print {
+                display: none;
+            }
+        }
+        
+        /* Links */
+        a {
+            color: #16a34a;
+            text-decoration: none;
+        }
+        
+        a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #6b7280;
+            font-size: 10pt;
+            margin-top: 10mm;
+            padding-top: 5mm;
+            border-top: 1px solid #e5e7eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Cover Page -->
+        <div class="cover">
+            <h1>คู่มือผู้ดูแลระบบ</h1>
+            <h2>EGPB Ticket System</h2>
+            <p style="font-size: 16pt; color: #6b7280; margin-top: 10mm;">
+                Admin Manual<br>
+                ระบบจัดการตั๋วแจ้งซ่อมและบำรุงรักษา
+            </p>
+            <div class="version">
+                <p>เวอร์ชัน 1.0</p>
+                <p>อัปเดตล่าสุด: 31 ธันวาคม 2567</p>
+            </div>
+        </div>
+
+        <!-- Table of Contents -->
+        <div class="toc">
+            <h2>สารบัญ</h2>
+            <ul>
+                <li><strong>1. ภาพรวมระบบ</strong></li>
+                <li><strong>2. การจัดการผู้ใช้งาน (User Management)</strong>
+                    <ul>
+                        <li>2.1 การเข้าสู่หน้าจัดการผู้ใช้งาน</li>
+                        <li>2.2 การเพิ่มผู้ใช้งานใหม่</li>
+                        <li>2.3 การแก้ไขข้อมูลผู้ใช้งาน</li>
+                        <li>2.4 การลบผู้ใช้งาน</li>
+                        <li>2.5 การค้นหาและกรองข้อมูล</li>
+                        <li>2.6 การ Export ข้อมูลผู้ใช้</li>
+                    </ul>
+                </li>
+                <li><strong>3. การจัดการตั๋วงาน (Ticket Management)</strong>
+                    <ul>
+                        <li>3.1 การดูรายการตั๋วงาน</li>
+                        <li>3.2 การเปลี่ยนสถานะงาน</li>
+                        <li>3.3 การมอบหมายงาน (Assign To)</li>
+                        <li>3.4 การเพิ่มหมายเหตุผู้ดูแลระบบ</li>
+                        <li>3.5 การค้นหาและกรองตั๋วงาน</li>
+                        <li>3.6 การ Export ข้อมูลตั๋วงาน</li>
+                    </ul>
+                </li>
+                <li><strong>4. การดูรายงานสรุป (Dashboard Summary)</strong>
+                    <ul>
+                        <li>4.1 IT Summary Dashboard</li>
+                        <li>4.2 Engineer Summary Dashboard</li>
+                    </ul>
+                </li>
+                <li><strong>5. ระบบแจ้งเตือน (Notification System)</strong>
+                    <ul>
+                        <li>5.1 การแจ้งเตือนสำหรับ Admin</li>
+                        <li>5.2 การแจ้งเตือนสำหรับ User</li>
+                    </ul>
+                </li>
+                <li><strong>6. การตั้งค่าระบบ (System Configuration)</strong>
+                    <ul>
+                        <li>6.1 การเพิ่ม/แก้ไข Type of Damage</li>
+                        <li>6.2 การเพิ่ม/แก้ไข Area</li>
+                        <li>6.3 การเพิ่ม/แก้ไข Department</li>
+                        <li>6.4 การเปลี่ยนไฟล์เสียงแจ้งเตือน</li>
+                        <li>6.5 การ Build และ Deploy ระบบ</li>
+                    </ul>
+                </li>
+                <li><strong>7. คำถามที่พบบ่อย (FAQ)</strong></li>
+            </ul>
+        </div>
+
+        <!-- Main Content -->
+        <h1>1. ภาพรวมระบบ</h1>
+        
+        <p>EGPB Ticket System เป็นระบบจัดการตั๋วแจ้งซ่อมและบำรุงรักษาที่ออกแบบมาสำหรับองค์กร โดยแบ่งออกเป็น 2 ส่วนหลัก:</p>
+        
+        <ul>
+            <li><strong>IT Dashboard</strong> - สำหรับจัดการงานด้าน IT (Hardware, Software, Network, etc.)</li>
+            <li><strong>Engineer Dashboard</strong> - สำหรับจัดการงานด้านวิศวกรรม (Air Condition, Plumbing, Electrical, etc.)</li>
+        </ul>
+
+        <div class="alert alert-info">
+            <strong>ℹ️ สิทธิ์การเข้าถึง</strong>
+            <p>ผู้ดูแลระบบมี 3 ระดับ:</p>
+            <ul>
+                <li><strong>ADMIN</strong> - สามารถเข้าถึงทุกฟังก์ชันในระบบ (IT + Engineer)</li>
+                <li><strong>IT_ADMIN</strong> - จัดการเฉพาะส่วน IT Dashboard และ User Management</li>
+                <li><strong>ENGINEER_ADMIN</strong> - จัดการเฉพาะส่วน Engineer Dashboard</li>
+            </ul>
+        </div>
+
+        <h1>2. การจัดการผู้ใช้งาน (User Management)</h1>
+
+        <p>ผู้ดูแลระบบที่มีสิทธิ์ <code>ADMIN</code> หรือ <code>IT_ADMIN</code> สามารถจัดการบัญชีผู้ใช้งานได้ทั้งหมด</p>
+
+        <h2>2.1 การเข้าสู่หน้าจัดการผู้ใช้งาน</h2>
+
+        <div class="step">
+            <p><span class="step-number">1</span>เข้าสู่ระบบด้วยบัญชีที่มีสิทธิ์ <strong>Admin</strong> หรือ <strong>IT Admin</strong></p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>ที่ Dashboard หลัก คลิกปุ่ม <strong>"Manage Users"</strong> สีม่วง หรือไปที่ URL: <code>/dashboard/users</code></p>
+        </div>
+
+        <h2>2.2 การเพิ่มผู้ใช้งานใหม่ (Add User)</h2>
+
+        <div class="step">
+            <p><span class="step-number">1</span>คลิกปุ่ม <strong>"+ Add User"</strong> มุมขวาบนของหน้า</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>กรอกข้อมูลให้ครบถ้วนในฟอร์ม:</p>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ฟิลด์</th>
+                    <th>คำอธิบาย</th>
+                    <th>จำเป็น</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Username</strong></td>
+                    <td>ชื่อผู้ใช้ (ภาษาอังกฤษ ไม่มีช่องว่าง)</td>
+                    <td>✅ ใช่</td>
+                </tr>
+                <tr>
+                    <td><strong>Full Name</strong></td>
+                    <td>ชื่อ-นามสกุลจริง</td>
+                    <td>❌ ไม่</td>
+                </tr>
+                <tr>
+                    <td><strong>Position</strong></td>
+                    <td>ตำแหน่งงาน</td>
+                    <td>❌ ไม่</td>
+                </tr>
+                <tr>
+                    <td><strong>Department</strong></td>
+                    <td>แผนก (เช่น Engineer, IT, HR)</td>
+                    <td>❌ ไม่</td>
+                </tr>
+                <tr>
+                    <td><strong>Telephone Ext</strong></td>
+                    <td>เบอร์ต่อภายใน</td>
+                    <td>❌ ไม่</td>
+                </tr>
+                <tr>
+                    <td><strong>Role</strong></td>
+                    <td>สิทธิ์การใช้งาน (ADMIN, IT_ADMIN, ENGINEER_ADMIN, USER, etc.)</td>
+                    <td>✅ ใช่</td>
+                </tr>
+                <tr>
+                    <td><strong>Password</strong></td>
+                    <td>รหัสผ่าน</td>
+                    <td>✅ ใช่</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="step">
+            <p><span class="step-number">3</span>กดปุ่ม <strong>"Create User"</strong> เพื่อบันทึก</p>
+        </div>
+
+        <div class="alert alert-warning">
+            <strong>⚠️ ข้อควรระวัง</strong>
+            <p>Username จะถูก Trim (ตัดช่องว่างหน้า-หลัง) อัตโนมัติ เพื่อป้องกันปัญหาการ Login</p>
+        </div>
+
+        <h2>2.3 การแก้ไขข้อมูลผู้ใช้งาน</h2>
+
+        <div class="step">
+            <p><span class="step-number">1</span>ค้นหาผู้ใช้งานที่ต้องการแก้ไข</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>คลิกไอคอน <strong>Edit</strong> (รูปดินสอสีน้ำเงิน) ในคอลัมน์ Actions</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">3</span>แก้ไขข้อมูลที่ต้องการ (สามารถเปลี่ยน Role หรือ Reset Password ได้)</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">4</span>กดปุ่ม <strong>"Update User"</strong> เพื่อบันทึก</p>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>💡 เคล็ดลับ</strong>
+            <p>หากต้องการเปลี่ยนรหัสผ่าน ให้กรอกรหัสผ่านใหม่ในช่อง Password หากไม่ต้องการเปลี่ยน ให้เว้นว่างไว้</p>
+        </div>
+
+        <h2>2.4 การลบผู้ใช้งาน</h2>
+
+        <h3>การลบทีละคน</h3>
+
+        <div class="step">
+            <p><span class="step-number">1</span>คลิกไอคอน <strong>Delete</strong> (รูปถังขยะสีแดง) หลังชื่อผู้ใช้งาน</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>ระบบจะแสดง Toast ยืนยัน คลิก <strong>"Delete"</strong> เพื่อยืนยัน</p>
+        </div>
+
+        <h3>การลบหลายคนพร้อมกัน (Bulk Delete)</h3>
+
+        <div class="step">
+            <p><span class="step-number">1</span>ติ๊กถูก (Checkbox) หน้าชื่อผู้ใช้งานที่ต้องการลบ</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>กดปุ่มสีแดง <strong>"Delete Selected"</strong> ที่แสดงด้านบน</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">3</span>ยืนยันการลบในหน้าต่าง Toast</p>
+        </div>
+
+        <div class="alert alert-danger">
+            <strong>🚫 ข้อจำกัด</strong>
+            <p>ไม่สามารถลบบัญชีของตัวเองได้ เพื่อป้องกันการสูญเสียสิทธิ์การเข้าถึงระบบ</p>
+        </div>
+
+        <h2>2.5 การค้นหาและกรองข้อมูล</h2>
+
+        <h3>การค้นหา (Search)</h3>
+        <p>พิมพ์ชื่อผู้ใช้งานในช่องค้นหา ระบบจะค้นหาแบบ Real-time (มีดีเลย์ 300ms)</p>
+
+        <h3>การกรองตาม Role</h3>
+        <p>เลือก Role จากเมนู Dropdown เพื่อแสดงเฉพาะผู้ใช้งานที่มี Role นั้นๆ</p>
+
+        <h3>การล้างฟิลเตอร์</h3>
+        <p>คลิก <strong>"Clear all"</strong> เพื่อล้างการค้นหาและฟิลเตอร์ทั้งหมด</p>
+
+        <h2>2.6 การ Export ข้อมูลผู้ใช้</h2>
+
+        <div class="step">
+            <p><span class="step-number">1</span>คลิกปุ่ม <strong>"Export Users"</strong> มุมขวาบน</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>ระบบจะดาวน์โหลดไฟล์ <code>.csv</code> ที่สามารถเปิดด้วย Excel ได้</p>
+        </div>
+
+        <p>ไฟล์ที่ Export จะมีข้อมูล: Username, Full Name, Position, Department, Role, Created At</p>
+
+        <h1>3. การจัดการตั๋วงาน (Ticket Management)</h1>
+
+        <h2>3.1 การดูรายการตั๋วงาน</h2>
+
+        <p>ผู้ดูแลระบบสามารถดูตั๋วงานทั้งหมดได้ที่:</p>
+        <ul>
+            <li><strong>IT Dashboard</strong>: <code>/dashboard</code></li>
+            <li><strong>Engineer Dashboard</strong>: <code>/dashboard/engineer</code></li>
+        </ul>
+
+        <p>ตารางแสดงข้อมูล: Ticket ID, Area, Location, Department, Type Of Damage, Request By, Date, Status</p>
+
+        <h2>3.2 การเปลี่ยนสถานะงาน (Update Status)</h2>
+
+        <p>เมื่อคลิกเข้าไปที่ตั๋วงาน (Ticket Details) ผู้ดูแลระบบสามารถเปลี่ยนสถานะได้ 5 แบบ:</p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>สถานะ</th>
+                    <th>คำอธิบาย</th>
+                    <th>เงื่อนไข</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>NEW</strong></td>
+                    <td>งานใหม่ (สถานะเริ่มต้น)</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>ON PROCESS</strong></td>
+                    <td>กำลังดำเนินการ</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><strong>ON HOLD</strong></td>
+                    <td>รอดำเนินการ (รออะไหล่, รอข้อมูล)</td>
+                    <td>⚠️ ต้องระบุเหตุผลใน <strong>Admin Notes</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>DONE</strong></td>
+                    <td>เสร็จสิ้น</td>
+                    <td>⚠️ ต้องระบุชื่อผู้รับผิดชอบใน <strong>Assign To</strong></td>
+                </tr>
+                <tr>
+                    <td><strong>CANCEL</strong></td>
+                    <td>ยกเลิก</td>
+                    <td>⚠️ ต้องระบุเหตุผลใน <strong>Admin Notes</strong></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="alert alert-warning">
+            <strong>⚠️ สำคัญ</strong>
+            <p>ก่อนเปลี่ยนสถานะเป็น <strong>DONE</strong>, <strong>ON HOLD</strong> หรือ <strong>CANCEL</strong> ต้องกรอกข้อมูลที่จำเป็นและกดปุ่ม <strong>Save</strong> ก่อน มิฉะนั้นระบบจะไม่อนุญาตให้เปลี่ยนสถานะ</p>
+        </div>
+
+        <h2>3.3 การมอบหมายงาน (Assign To)</h2>
+
+        <div class="step">
+            <p><span class="step-number">1</span>เปิดหน้า Ticket Details</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>กรอกชื่อผู้รับผิดชอบในช่อง <strong>"Assign to"</strong></p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">3</span>กดปุ่ม <strong>"Save"</strong> เพื่อบันทึก</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">4</span>จากนั้นจึงสามารถเปลี่ยนสถานะเป็น <strong>DONE</strong> ได้</p>
+        </div>
+
+        <h2>3.4 การเพิ่มหมายเหตุผู้ดูแลระบบ (Admin Notes)</h2>
+
+        <p>ใช้สำหรับบันทึกข้อมูลเพิ่มเติม เช่น:</p>
+        <ul>
+            <li>สาเหตุที่ต้อง On Hold (รออะไหล่, รอผู้เชี่ยวชาญ)</li>
+            <li>สาเหตุที่ยกเลิก</li>
+            <li>รายละเอียดการแก้ไข</li>
+        </ul>
+
+        <div class="step">
+            <p><span class="step-number">1</span>กรอกข้อความในช่อง <strong>"Admin Notes"</strong></p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>กดปุ่ม <strong>"Save"</strong></p>
+        </div>
+
+        <h2>3.5 การค้นหาและกรองตั๋วงาน</h2>
+
+        <h3>การค้นหา (Search)</h3>
+        <p>พิมพ์คำค้นหาในช่อง Search ระบบจะค้นหาจาก: Ticket Number, Location, Description, Department</p>
+
+        <h3>การกรองตามประเภท (Type Filter)</h3>
+        <p>เลือกประเภทความเสียหายจาก Dropdown เช่น Hardware, Software, Network</p>
+
+        <h3>การกรองตามสถานะ (Status Filter)</h3>
+        <p>เลือกสถานะจาก Dropdown เช่น NEW, ON PROCESS, DONE</p>
+
+        <h3>การกรองตามวันที่ (Date Range)</h3>
+        <p>เลือกช่วงวันที่ Start Date และ End Date เพื่อดูตั๋วงานในช่วงเวลานั้น</p>
+
+        <h3>การดูเฉพาะตั๋วงานของตัวเอง (My Tickets)</h3>
+        <p>คลิกที่ Profile Dropdown → เลือก <strong>"My Tickets"</strong></p>
+
+        <h2>3.6 การ Export ข้อมูลตั๋วงาน</h2>
+
+        <div class="step">
+            <p><span class="step-number">1</span>ตั้งค่าฟิลเตอร์ตามต้องการ (หรือไม่ตั้งก็ได้ถ้าต้องการ Export ทั้งหมด)</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>คลิกปุ่ม <strong>"Export Excel"</strong></p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">3</span>ระบบจะดาวน์โหลดไฟล์ <code>.xlsx</code> ที่มีข้อมูลตั๋วงานทั้งหมดตามฟิลเตอร์</p>
+        </div>
+
+        <p>ไฟล์ Excel จะมีข้อมูล: Ticket Number, Location, Description, Department, Area, Type of Damage, Status, Admin Notes, Assign To, Created At, Last Updated, Reporter, Image Links</p>
+
+        <h1>4. การดูรายงานสรุป (Dashboard Summary)</h1>
+
+        <h2>4.1 IT Summary Dashboard</h2>
+
+        <p>เข้าถึงได้ที่: <code>/dashboard/summary</code></p>
+
+        <p>แสดงข้อมูลสถิติ:</p>
+        <ul>
+            <li>จำนวนตั๋วงานทั้งหมด (Total Tickets)</li>
+            <li>จำนวนตั๋วงานเดือนนี้ (This Month)</li>
+            <li>จำนวนตั๋วงานเดือนที่แล้ว (Last Month Total)</li>
+            <li>จำนวนตั๋วงานสะสมทั้งปี (Year-to-Date)</li>
+            <li>กราฟแสดงสถานะงาน (Status Breakdown)</li>
+            <li>กราฟแสดงประเภทความเสียหายยอดนิยม (Top Damage Types)</li>
+        </ul>
+
+        <h2>4.2 Engineer Summary Dashboard</h2>
+
+        <p>เข้าถึงได้ที่: <code>/dashboard/engineer/summary</code></p>
+
+        <p>แสดงข้อมูลเช่นเดียวกับ IT Summary แต่สำหรับงานด้าน Engineer</p>
+
+        <h1>5. ระบบแจ้งเตือน (Notification System)</h1>
+
+        <h2>5.1 การแจ้งเตือนสำหรับ Admin</h2>
+
+        <p>เมื่อมีตั๋วงานใหม่เข้ามา ระบบจะ:</p>
+        <ul>
+            <li>แสดงจุดแดงที่ไอคอนกระดิ่ง (Bell Icon) พร้อมจำนวนตั๋วงานใหม่</li>
+            <li>เล่นเสียงแจ้งเตือน (notification.mp3)</li>
+            <li>แสดง Toast Notification สีแดงมุมขวาล่าง</li>
+            <li>อัปเดตจำนวนใน Browser Tab Title</li>
+        </ul>
+
+        <h3>การดูตั๋วงานใหม่</h3>
+
+        <div class="step">
+            <p><span class="step-number">1</span>คลิกที่ไอคอนกระดิ่ง (Bell) ที่ Navbar</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>ระบบจะแสดงรายการตั๋วงานใหม่ทั้งหมด</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">3</span>คลิกที่ตั๋วงานเพื่อดูรายละเอียด</p>
+        </div>
+
+        <h3>การทำเครื่องหมายว่าอ่านแล้ว</h3>
+
+        <p>คลิก <strong>"Mark all as read"</strong> เพื่อล้างการแจ้งเตือนทั้งหมด</p>
+
+        <h2>5.2 การแจ้งเตือนสำหรับ User</h2>
+
+        <p>ผู้ใช้งานทั่วไปจะได้รับการแจ้งเตือนเมื่อ:</p>
+        <ul>
+            <li>สถานะตั๋วงานของตัวเองเปลี่ยนแปลง</li>
+            <li>Admin เพิ่ม Admin Notes</li>
+            <li>Admin มอบหมายงาน (Assign To)</li>
+        </ul>
+
+        <p>การแจ้งเตือนจะแสดงที่ไอคอนกระดิ่งสีเขียวข้างโปรไฟล์</p>
+
+        <h1>6. การตั้งค่าระบบ (System Configuration)</h1>
+
+        <div class="alert alert-info">
+            <strong>ℹ️ หมายเหตุ</strong>
+            <p>เนื่องจากระบบถูกออกแบบมาให้มีความเสถียรและรวดเร็ว การตั้งค่าบางอย่างจะถูกกำหนดไว้ใน Code (Hardcoded) เพื่อความปลอดภัยและความถูกต้องของข้อมูล การแก้ไขจำเป็นต้องแก้ที่ไฟล์ต้นฉบับและทำการ Build ระบบใหม่</p>
+        </div>
+
+        <h2>6.1 การเพิ่ม/แก้ไข Type of Damage (ประเภทความเสียหาย)</h2>
+
+        <p>รายการ "Type of Damage" ถูกกำหนดไว้ในไฟล์: <code>f:\ticket-form-app\lib\constants.ts</code></p>
+
+        <h3>สำหรับ IT Tickets</h3>
+
+        <div class="step">
+            <p><span class="step-number">1</span>เปิดไฟล์ <code>lib/constants.ts</code> ด้วย Text Editor หรือ VS Code</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>ค้นหาตัวแปร <code>IT_DAMAGE_TYPES</code> (อยู่ที่บรรทัดที่ 9)</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">3</span>เพิ่มหรือแก้ไขรายการภายในวงเล็บ <code>[ ... ]</code></p>
+        </div>
+
+        <pre><code>export const IT_DAMAGE_TYPES = [
+    'Hardware',
+    'Network / Internet / WIFI',
+    'Software',
+    'Television / Digital Signage',
+    'Telephone',
+    'Access / Permission',
+    'Printing / Scanning',
+    'CCTV',
+    'POS',
+    'Access Control',
+    'Email / Communication',
+    'Service Request',
+    'Security Incident',
+    'New Damage Type',  // <--- เพิ่มรายการใหม่ตรงนี้
+    'Other',
+] as const;</code></pre>
+
+        <div class="step">
+            <p><span class="step-number">4</span>บันทึกไฟล์ (Ctrl + S)</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">5</span>ทำการ Build และ Deploy ระบบใหม่ (ดูหัวข้อ 6.5)</p>
+        </div>
+
+        <h3>สำหรับ Engineer Tickets</h3>
+
+        <p>ทำเช่นเดียวกัน แต่แก้ไขที่ตัวแปร <code>ENGINEER_DAMAGE_TYPES</code> (บรรทัดที่ 45)</p>
+
+        <pre><code>export const ENGINEER_DAMAGE_TYPES = [
+    'Air Condition',
+    'Refrigerator',
+    'Wal-in Chiller',
+    'Ice Machines',
+    'Ventilation System',
+    'GAS System',
+    'Hot Water',
+    'Cold Water',
+    'Toilet',
+    'Drainage pipe',
+    'Water Leaking pipe',
+    'EE Equipment',
+    'Television / Digital Signage',
+    'Telephone',
+    'Safe Box',
+    'Door',
+    'Lighting',
+    'Furniture',
+    'Touch up/Grouting',
+    'Carpenter work',
+    'Safety System',
+    'Sanitary and Toilet',
+    'Lift',
+    'PM Program',
+    'Other',
+] as const;</code></pre>
+
+        <h2>6.2 การเพิ่ม/แก้ไข Area (พื้นที่)</h2>
+
+        <p>แก้ไขในไฟล์เดียวกัน: <code>lib/constants.ts</code></p>
+
+        <h3>สำหรับ IT</h3>
+        <p>แก้ไขตัวแปร <code>IT_AREAS</code> (บรรทัดที่ 28)</p>
+
+        <pre><code>export const IT_AREAS = [
+    'Guest room',
+    'Back Office',
+    'Reception',
+    'Kitchen',
+    'Restaurant/Retail',
+    'Juristic/Tenants',
+    'Public Area',
+    'Other',
+] as const;</code></pre>
+
+        <h3>สำหรับ Engineer</h3>
+        <p>แก้ไขตัวแปร <code>ENGINEER_AREAS</code> (บรรทัดที่ 75)</p>
+
+        <pre><code>export const ENGINEER_AREAS = [
+    'Guest Rooms',
+    'Kitchen',
+    'Office Hotel Area',
+    'BOH Hotel',
+    'Retail',
+    'Tenants Office Area',
+    'Function Room',
+    'Other',
+] as const;</code></pre>
+
+        <h2>6.3 การเพิ่ม/แก้ไข Department (แผนก)</h2>
+
+        <p>แก้ไขตัวแปร <code>DEPARTMENTS</code> (บรรทัดที่ 92)</p>
+
+        <pre><code>export const DEPARTMENTS = [
+    'Engineer',
+    'Executive & Accounting',
+    'F&B',
+    'Banquet',
+    'Front Office',
+    'Housekeeping',
+    'Human Resource',
+    'Juristic',
+    'Kitchen',
+    'Reservations & Sales & Marketing',
+    'Security',
+] as const;</code></pre>
+
+        <h2>6.4 การเปลี่ยนไฟล์เสียงแจ้งเตือน</h2>
+
+        <p>ระบบใช้ไฟล์เสียง <code>notification.mp3</code> สำหรับแจ้งเตือนเมื่อมีตั๋วงานใหม่</p>
+
+        <h3>วิธีเปลี่ยนเสียง</h3>
+
+        <div class="step">
+            <p><span class="step-number">1</span>เตรียมไฟล์เสียงที่ต้องการ (นามสกุล <code>.mp3</code> เท่านั้น)</p>
+        </div>
+
+        <div class="alert alert-info">
+            <strong>💡 คุณสมบัติไฟล์เสียงที่แนะนำ</strong>
+            <ul>
+                <li>ความยาว: 0.5 - 2 วินาที</li>
+                <li>ขนาดไฟล์: ไม่เกิน 100 KB</li>
+                <li>เสียงที่ชัดเจน ไม่แหลม ไม่รบกวน</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>เปลี่ยนชื่อไฟล์เป็น <code>notification.mp3</code></p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">3</span>นำไฟล์ไปวางทับไฟล์เดิมที่โฟลเดอร์: <code>f:\ticket-form-app\public\notification.mp3</code></p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">4</span>เปิดไฟล์ <code>lib/notification-sound.ts</code></p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">5</span>เปลี่ยนเลข <code>SOUND_VERSION</code> (บรรทัดที่ 14) เพื่อบังคับให้ Browser โหลดไฟล์ใหม่</p>
+        </div>
+
+        <pre><code>// เปลี่ยนเลข VERSION ทุกครั้งที่เปลี่ยนไฟล์เสียง (เช่น 1, 2, 3, ...)
+const SOUND_VERSION = 3;  // <--- เพิ่มเลขขึ้น</code></pre>
+
+        <div class="step">
+            <p><span class="step-number">6</span>บันทึกไฟล์และทำการ Build ระบบใหม่</p>
+        </div>
+
+        <div class="alert alert-warning">
+            <strong>⚠️ ข้อควรระวัง</strong>
+            <p>หากเปลี่ยนไฟล์แล้วเสียงยังเป็นแบบเดิม ให้ลอง:</p>
+            <ul>
+                <li>Clear Cache ของ Browser (Ctrl + Shift + Delete)</li>
+                <li>เปิดในโหมด Incognito/Private</li>
+                <li>Hard Refresh (Ctrl + F5)</li>
+            </ul>
+        </div>
+
+        <h2>6.5 การ Build และ Deploy ระบบ</h2>
+
+        <p>หลังจากแก้ไขโค้ดใดๆ ต้องทำการ Build และ Restart ระบบเพื่อให้การเปลี่ยนแปลงมีผล</p>
+
+        <h3>วิธี Build และ Deploy</h3>
+
+        <div class="step">
+            <p><span class="step-number">1</span>เปิด PowerShell หรือ Command Prompt</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">2</span>ไปที่โฟลเดอร์โปรเจค:</p>
+        </div>
+
+        <pre><code>cd f:\ticket-form-app</code></pre>
+
+        <div class="step">
+            <p><span class="step-number">3</span>รันคำสั่ง Build:</p>
+        </div>
+
+        <pre><code>npm run build</code></pre>
+
+        <div class="step">
+            <p><span class="step-number">4</span>รอจนกว่า Build เสร็จ (ประมาณ 1-2 นาที)</p>
+        </div>
+
+        <div class="step">
+            <p><span class="step-number">5</span>Restart PM2 Process:</p>
+        </div>
+
+        <pre><code>pm2 restart ticket-app</code></pre>
+
+        <div class="step">
+            <p><span class="step-number">6</span>ตรวจสอบสถานะ:</p>
+        </div>
+
+        <pre><code>pm2 status</code></pre>
+
+        <div class="alert alert-success">
+            <strong>✅ เสร็จสิ้น</strong>
+            <p>ระบบจะรีสตาร์ทและใช้โค้ดใหม่ที่แก้ไขแล้ว</p>
+        </div>
+
+        <h3>การใช้ Deploy Script (แนะนำ)</h3>
+
+        <p>ระบบมี Script สำหรับ Deploy อัตโนมัติที่ทำ Backup, Build และ Restart ให้อัตโนมัติ</p>
+
+        <div class="step">
+            <p><span class="step-number">1</span>รันคำสั่ง:</p>
+        </div>
+
+        <pre><code>.\scripts\deploy.ps1</code></pre>
+
+        <p>Script จะทำงานดังนี้:</p>
+        <ul>
+            <li>Backup โค้ดเดิม</li>
+            <li>Build โปรเจค</li>
+            <li>Restart PM2</li>
+            <li>ตรวจสอบสถานะ</li>
+        </ul>
+
+        <h1>7. คำถามที่พบบ่อย (FAQ)</h1>
+
+        <h3>Q: ลืมรหัสผ่าน Admin ทำอย่างไร?</h3>
+        <p><strong>A:</strong> ติดต่อผู้ดูแลระบบหลักเพื่อ Reset รหัสผ่านผ่านหน้า User Management</p>
+
+        <h3>Q: ทำไมไม่สามารถเปลี่ยนสถานะเป็น DONE ได้?</h3>
+        <p><strong>A:</strong> ต้องกรอกข้อมูลในช่อง "Assign to" และกดปุ่ม Save ก่อน</p>
+
+        <h3>Q: ทำไมเสียงแจ้งเตือนไม่ดัง?</h3>
+        <p><strong>A:</strong> ตรวจสอบว่า:</p>
+        <ul>
+            <li>ไฟล์ <code>notification.mp3</code> อยู่ในโฟลเดอร์ <code>public</code></li>
+            <li>เสียงของ Browser ไม่ได้ปิด (Mute)</li>
+            <li>ได้คลิกหน้าเว็บอย่างน้อย 1 ครั้ง (Browser ต้องการ User Interaction ก่อนเล่นเสียง)</li>
+        </ul>
+
+        <h3>Q: ทำไม Type of Damage ที่เพิ่มไม่แสดง?</h3>
+        <p><strong>A:</strong> ต้องทำการ Build และ Restart ระบบหลังจากแก้ไขไฟล์ <code>constants.ts</code></p>
+
+        <h3>Q: จะดูตั๋วงานที่ตัวเองสร้างอย่างเดียวได้ไหม?</h3>
+        <p><strong>A:</strong> ได้ คลิกที่ Profile Dropdown → เลือก "My Tickets"</p>
+
+        <h3>Q: Export Excel แล้วภาษาไทยเป็นอักขระแปลกๆ</h3>
+        <p><strong>A:</strong> เปิดไฟล์ด้วย Excel → ไปที่ Data → From Text/CSV → เลือก Encoding เป็น UTF-8</p>
+
+        <h3>Q: ระบบช้า ทำอย่างไร?</h3>
+        <p><strong>A:</strong> ตรวจสอบ:</p>
+        <ul>
+            <li>PM2 Status: <code>pm2 status</code></li>
+            <li>PM2 Logs: <code>pm2 logs ticket-app</code></li>
+            <li>Database Connection</li>
+            <li>Disk Space</li>
+        </ul>
+
+        <h3>Q: จะเพิ่ม Role ใหม่ได้ไหม?</h3>
+        <p><strong>A:</strong> ได้ แต่ต้องแก้ไขโค้ดในหลายไฟล์ แนะนำให้ติดต่อนักพัฒนาระบบ</p>
+
+        <div class="footer">
+            <p><strong>EGPB Ticket System - Admin Manual v1.0</strong></p>
+            <p>© 2024 EGPB. All rights reserved.</p>
+            <p>สำหรับข้อสงสัยเพิ่มเติม กรุณาติดต่อทีม IT</p>
+        </div>
+    </div>
+</body>
+</html>

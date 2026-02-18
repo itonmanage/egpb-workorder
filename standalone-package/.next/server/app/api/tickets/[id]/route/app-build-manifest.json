@@ -1,0 +1,12 @@
+{
+  "pages": {
+    "/api/tickets/[id]/route": [
+      "static/chunks/4875d5fc17a15483.js",
+      "static/chunks/91adb7bdb9870c6a.js",
+      "static/chunks/e3e5434a413abe7f.js",
+      "static/chunks/202abb9aed9e828b.js",
+      "static/chunks/75a3f12660976f11.js",
+      "static/chunks/turbopack-248fde3885e1d66a.js"
+    ]
+  }
+}

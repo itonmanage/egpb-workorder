@@ -1,0 +1,17 @@
+[
+    {
+        "ticketNumber": "EGPB-EN25-00001",
+        "title": "Guest Rooms",
+        "description": "ตัวอย่างรายละเอียดปัญหา",
+        "department": "Executive & Accounting",
+        "location": "test",
+        "typeOfDamage": "Ice Machines",
+        "status": "IN_PROGRESS",
+        "adminNotes": null,
+        "assignTo": "ช่างเอ",
+        "informationBy": "By Phone",
+        "userId": "USER_ID_HERE",
+        "createdAt": "2025-12-18T05:00:00.000Z",
+        "updatedAt": "2025-12-18T05:00:00.000Z"
+    }
+]
