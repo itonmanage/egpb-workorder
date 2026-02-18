@@ -8,7 +8,8 @@ import { ROLE_TO_DEPARTMENT_MAP, DEPARTMENT_ROLES } from '@/lib/constants';
 // GET /api/engineer-tickets - List all engineer tickets
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const token = request.cookies.get('auth-token')?.value
+      || request.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -196,7 +197,8 @@ export async function GET(request: NextRequest) {
 // POST /api/engineer-tickets - Create new engineer ticket
 export async function POST(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const token = request.cookies.get('auth-token')?.value
+      || request.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

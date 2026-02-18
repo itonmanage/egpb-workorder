@@ -12,7 +12,8 @@ import { createTicketApiSchema } from '@/lib/api-validation';
 // GET /api/tickets - List all tickets with filters
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const token = request.cookies.get('auth-token')?.value
+      || request.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -199,7 +200,8 @@ export async function GET(request: NextRequest) {
 // POST /api/tickets - Create new ticket
 export async function POST(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const token = request.cookies.get('auth-token')?.value
+      || request.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

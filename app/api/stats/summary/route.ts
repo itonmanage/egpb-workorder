@@ -7,7 +7,8 @@ const STATUSES = ['NEW', 'IN_PROGRESS', 'ON_HOLD', 'DONE', 'CANCEL'] as const;
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const token = request.cookies.get('auth-token')?.value
+      || request.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

@@ -3,14 +3,15 @@ import { deleteSession } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.cookies.get('auth-token')?.value;
+    const token = request.cookies.get('auth-token')?.value
+      || request.headers.get('authorization')?.replace('Bearer ', '');
 
     if (token) {
       await deleteSession(token);
     }
 
     const response = NextResponse.json({ success: true });
-    
+
     // Clear cookie
     response.cookies.delete('auth-token');
 
