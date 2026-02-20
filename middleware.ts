@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { rateLimiter } from '@/lib/rate-limit'
+import { rateLimiter, authRateLimiter, uploadRateLimiter } from '@/lib/rate-limit'
 
 export async function middleware(request: NextRequest) {
     // Create response
@@ -12,12 +12,19 @@ export async function middleware(request: NextRequest) {
 
     // CSRF Protection & Rate Limiting for API routes
     if (pathname.startsWith('/api/')) {
-        // Rate Limiting (100 req/min)
         const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || '127.0.0.1';
-        const isAllowed = await rateLimiter.check(100, ip);
 
-        if (!isAllowed) {
-            return new NextResponse('Too Many Requests', { status: 429 });
+        // Stricter rate limiting for specific endpoints
+        if (pathname.startsWith('/api/auth')) {
+            const isAllowed = await authRateLimiter.check(20, ip); // 20 req/min for auth
+            if (!isAllowed) return new NextResponse('Too Many Requests (Auth)', { status: 429 });
+        } else if (pathname.startsWith('/api/upload')) {
+            const isAllowed = await uploadRateLimiter.check(30, ip); // 30 req/min for uploads
+            if (!isAllowed) return new NextResponse('Too Many Requests (Upload)', { status: 429 });
+        } else {
+            // General Rate Limiting (100 req/min)
+            const isAllowed = await rateLimiter.check(100, ip);
+            if (!isAllowed) return new NextResponse('Too Many Requests', { status: 429 });
         }
 
 

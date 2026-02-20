@@ -64,3 +64,13 @@ export const rateLimiter = new RateLimiter({
     interval: 60 * 1000, // 60 seconds
     uniqueTokenPerInterval: 500, // Max 500 IPs tracked at once
 });
+
+export const authRateLimiter = new RateLimiter({
+    interval: 60 * 1000, // 60 seconds
+    uniqueTokenPerInterval: 500,
+});
+
+export const uploadRateLimiter = new RateLimiter({
+    interval: 60 * 1000, // 60 seconds
+    uniqueTokenPerInterval: 500,
+});

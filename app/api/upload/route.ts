@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { saveImage, deleteImage } from '@/lib/fileStorage';
+import { saveImage, deleteImage, validateFile } from '@/lib/fileStorage';
 
 
 export async function POST(request: NextRequest) {
@@ -40,6 +40,13 @@ export async function POST(request: NextRequest) {
     for (const file of files) {
       try {
         console.log(`[Upload] Processing file: ${file.name}, type: ${type}, ticketId: ${ticketId}`);
+
+        // Validate the file before saving
+        const validation = validateFile(file);
+        if (!validation.valid) {
+          console.warn(`[Upload] Validation failed for ${file.name}: ${validation.error}`);
+          return NextResponse.json({ error: validation.error }, { status: 400 });
+        }
 
         // Use the centralized saveImage function which handles:
         // 1. Validation
