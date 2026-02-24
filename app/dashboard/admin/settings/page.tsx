@@ -111,6 +111,7 @@ export default function AdminSettingsPage() {
     const [importLoading, setImportLoading] = useState(false);
     const [exportLoading, setExportLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'options' | 'backup'>('options');
+    const [importResult, setImportResult] = useState<{ executed?: number; skipped?: number; total?: number; errors?: { statement: string; error: string }[] } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -295,26 +296,53 @@ export default function AdminSettingsPage() {
     const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        if (!file.name.endsWith('.json')) {
-            toast.error('กรุณาเลือกไฟล์ .json เท่านั้น');
+
+        const isSql = file.name.endsWith('.sql');
+        const isJson = file.name.endsWith('.json');
+
+        if (!isSql && !isJson) {
+            toast.error('กรุณาเลือกไฟล์ .sql หรือ .json เท่านั้น');
+            if (fileInputRef.current) fileInputRef.current.value = '';
             return;
         }
+
         setImportLoading(true);
+        setImportResult(null);
+
         try {
-            const text = await file.text();
-            const json = JSON.parse(text);
-            const res = await fetch('/egpb/pyt/workorder/api/admin/backup', {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(json),
-            });
-            const data = await res.json();
-            if (data.success) {
-                toast.success(data.message || 'Import สำเร็จ');
-                fetchOptions(activeTab);
+            if (isSql) {
+                // SQL import via multipart/form-data
+                const formData = new FormData();
+                formData.append('file', file);
+                const res = await fetch('/egpb/pyt/workorder/api/admin/backup/import-sql', {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: formData,
+                });
+                const data = await res.json();
+                if (data.success) {
+                    setImportResult({ executed: data.executed, skipped: data.skipped, total: data.total, errors: data.errors });
+                    toast.success(data.message || 'Import SQL สำเร็จ');
+                } else {
+                    toast.error(data.error || 'Import SQL ไม่สำเร็จ');
+                }
             } else {
-                toast.error(data.error || 'Import ไม่สำเร็จ');
+                // JSON import
+                const text = await file.text();
+                const json = JSON.parse(text);
+                const res = await fetch('/egpb/pyt/workorder/api/admin/backup', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(json),
+                });
+                const data = await res.json();
+                if (data.success) {
+                    toast.success(data.message || 'Import JSON สำเร็จ');
+                    fetchOptions(activeTab);
+                } else {
+                    toast.error(data.error || 'Import ไม่สำเร็จ');
+                }
             }
         } catch {
             toast.error('ไฟล์ไม่ถูกต้อง กรุณาตรวจสอบ format ของไฟล์');
@@ -684,25 +712,26 @@ export default function AdminSettingsPage() {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-gray-900">Import Backup</h3>
-                                        <p className="text-xs text-gray-500">นำเข้าข้อมูลสำรองจากไฟล์ JSON</p>
+                                        <p className="text-xs text-gray-500">นำเข้าข้อมูลสำรองจากไฟล์ .sql หรือ .json</p>
                                     </div>
                                 </div>
                             </div>
-                            <div className="p-5">
+                            <div className="p-5 space-y-4">
                                 <input
                                     ref={fileInputRef}
                                     type="file"
-                                    accept=".json"
+                                    accept=".sql,.json"
                                     onChange={handleImport}
                                     className="hidden"
                                     id="import-file"
+                                    disabled={importLoading}
                                 />
                                 <label
                                     htmlFor="import-file"
-                                    className={`w-full flex flex-col items-center justify-center gap-3 px-4 py-8 border-2 border-dashed rounded-xl cursor-pointer transition-all
+                                    className={`w-full flex flex-col items-center justify-center gap-3 px-4 py-8 border-2 border-dashed rounded-xl transition-all
                                         ${importLoading
                                             ? 'border-green-300 bg-green-50 cursor-not-allowed'
-                                            : 'border-gray-200 hover:border-green-400 hover:bg-green-50'
+                                            : 'border-gray-200 hover:border-green-400 hover:bg-green-50 cursor-pointer'
                                         }`}
                                 >
                                     {importLoading ? (
@@ -716,49 +745,101 @@ export default function AdminSettingsPage() {
                                                 <Upload size={24} className="text-gray-400" />
                                             </div>
                                             <div className="text-center">
-                                                <p className="text-sm font-medium text-gray-700">คลิกเพื่อเลือกไฟล์ .json</p>
-                                                <p className="text-xs text-gray-400 mt-1">หรือลาก-วางไฟล์ที่นี่</p>
+                                                <p className="text-sm font-medium text-gray-700">คลิกเพื่อเลือกไฟล์</p>
+                                                <p className="text-xs text-gray-400 mt-1">รองรับ <span className="font-semibold text-green-600">.sql</span> และ <span className="font-semibold text-blue-600">.json</span></p>
                                             </div>
                                         </>
                                     )}
                                 </label>
 
-                                <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-xl">
+                                {/* Import Result */}
+                                {importResult && (
+                                    <div className={`p-4 rounded-xl border ${importResult.errors && importResult.errors.length > 0 ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <CheckCircle2 size={16} className="text-green-600" />
+                                            <span className="text-sm font-semibold text-gray-700">ผลลัพธ์การ Import</span>
+                                        </div>
+                                        <div className="flex gap-4 text-sm mb-2">
+                                            <span className="text-gray-600">ทั้งหมด: <strong>{importResult.total}</strong> statements</span>
+                                            <span className="text-green-700">สำเร็จ: <strong>{importResult.executed}</strong></span>
+                                            <span className="text-amber-700">ข้าม: <strong>{importResult.skipped}</strong></span>
+                                        </div>
+                                        {importResult.errors && importResult.errors.length > 0 && (
+                                            <details className="mt-2">
+                                                <summary className="text-xs text-amber-700 cursor-pointer font-medium">ดู errors ({importResult.errors.length})</summary>
+                                                <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+                                                    {importResult.errors.map((err, i) => (
+                                                        <div key={i} className="text-xs bg-white rounded p-2 border border-amber-200">
+                                                            <p className="text-gray-500 font-mono truncate">{err.statement}</p>
+                                                            <p className="text-red-600">{err.error}</p>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </details>
+                                        )}
+                                    </div>
+                                )}
+
+                                <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl">
                                     <div className="flex items-start gap-2">
                                         <AlertTriangle size={14} className="text-amber-600 mt-0.5 flex-shrink-0" />
                                         <div className="text-xs text-amber-700 space-y-1">
                                             <p className="font-semibold">หมายเหตุ:</p>
-                                            <p>• Import จะ upsert ข้อมูล (เพิ่มใหม่หรืออัพเดตถ้ามีอยู่แล้ว)</p>
-                                            <p>• รองรับเฉพาะไฟล์ที่ Export จากระบบนี้เท่านั้น</p>
-                                            <p>• ข้อมูล Ticket ที่มีอยู่จะไม่ถูกลบ</p>
+                                            <p>• <strong>.sql</strong> — รองรับ INSERT, UPDATE, DELETE, CREATE TABLE, ALTER TABLE</p>
+                                            <p>• <strong>.json</strong> — รองรับไฟล์ที่ Export จากระบบนี้เท่านั้น</p>
+                                            <p>• DROP, TRUNCATE, และคำสั่งอันตรายจะถูกข้าม</p>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Format Reference */}
+                        {/* Format Reference - SQL */}
                         <div className="md:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
-                            <div className="flex items-center gap-2 mb-3">
+                            <div className="flex items-center gap-2 mb-4">
                                 <CheckCircle2 size={16} className="text-green-600" />
-                                <h3 className="text-sm font-semibold text-gray-700">รูปแบบไฟล์ Backup (JSON Format)</h3>
+                                <h3 className="text-sm font-semibold text-gray-700">ตัวอย่าง Format ที่รองรับ</h3>
                             </div>
-                            <pre className="bg-gray-900 text-green-400 text-xs p-4 rounded-xl overflow-x-auto font-mono leading-relaxed">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 mb-2 flex items-center gap-1.5">
+                                        <span className="w-5 h-5 bg-green-100 text-green-700 rounded text-center font-mono leading-5">S</span>
+                                        SQL Format (.sql)
+                                    </p>
+                                    <pre className="bg-gray-900 text-green-400 text-xs p-4 rounded-xl overflow-x-auto font-mono leading-relaxed">
+{`-- PostgreSQL dump
+INSERT INTO tickets (id, title, ...)
+VALUES ('uuid', 'ชื่อ ticket', ...);
+
+INSERT INTO engineer_tickets (...)
+VALUES (...);
+
+UPDATE tickets
+SET status = 'DONE'
+WHERE id = 'uuid';`}
+                                    </pre>
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 mb-2 flex items-center gap-1.5">
+                                        <span className="w-5 h-5 bg-blue-100 text-blue-700 rounded text-center font-mono leading-5">J</span>
+                                        JSON Format (.json)
+                                    </p>
+                                    <pre className="bg-gray-900 text-blue-400 text-xs p-4 rounded-xl overflow-x-auto font-mono leading-relaxed">
 {`{
-  "exportedAt": "2025-01-01T00:00:00.000Z",
-  "exportedBy": "admin",
+  "exportedAt": "...",
   "version": "1.0",
   "systemOptions": [
     {
       "category": "IT_DAMAGE_TYPE",
       "value": "Hardware",
       "label": "Hardware",
-      "sortOrder": 0,
       "isActive": true
     }
   ]
 }`}
-                            </pre>
+                                    </pre>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 )}
