@@ -111,7 +111,11 @@ export default function AdminSettingsPage() {
     const [importLoading, setImportLoading] = useState(false);
     const [exportLoading, setExportLoading] = useState(false);
     const [activeSection, setActiveSection] = useState<'options' | 'backup'>('options');
-    const [importResult, setImportResult] = useState<{ executed?: number; skipped?: number; total?: number; errors?: { statement: string; error: string }[] } | null>(null);
+    const [importMode, setImportMode] = useState<'data-only' | 'full'>('full');
+    const [importResult, setImportResult] = useState<{
+        format?: string; message?: string; executed?: number; skipped?: number;
+        total?: number; errors?: { statement: string; error: string }[]; output?: string;
+    } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -314,6 +318,7 @@ export default function AdminSettingsPage() {
                 // SQL import via multipart/form-data
                 const formData = new FormData();
                 formData.append('file', file);
+                formData.append('mode', importMode);
                 const res = await fetch('/egpb/pyt/workorder/api/admin/backup/import-sql', {
                     method: 'POST',
                     credentials: 'include',
@@ -321,9 +326,18 @@ export default function AdminSettingsPage() {
                 });
                 const data = await res.json();
                 if (data.success) {
-                    setImportResult({ executed: data.executed, skipped: data.skipped, total: data.total, errors: data.errors });
+                    setImportResult({
+                        format: data.format,
+                        message: data.message,
+                        executed: data.executed,
+                        skipped: data.skipped,
+                        total: data.total,
+                        errors: data.errors,
+                        output: data.output,
+                    });
                     toast.success(data.message || 'Import SQL สำเร็จ');
                 } else {
+                    setImportResult({ format: data.format, message: data.error });
                     toast.error(data.error || 'Import SQL ไม่สำเร็จ');
                 }
             } else {
@@ -712,11 +726,45 @@ export default function AdminSettingsPage() {
                                     </div>
                                     <div>
                                         <h3 className="font-semibold text-gray-900">Import Backup</h3>
-                                        <p className="text-xs text-gray-500">นำเข้าข้อมูลสำรองจากไฟล์ .sql หรือ .json</p>
+                                        <p className="text-xs text-gray-500">นำเข้าข้อมูลสำรองจากไฟล์ .sql (pg_dump) หรือ .json</p>
                                     </div>
                                 </div>
                             </div>
                             <div className="p-5 space-y-4">
+
+                                {/* Restore Mode Selector (for .sql only) */}
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-500 mb-2">โหมด Restore (สำหรับไฟล์ .sql)</p>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => setImportMode('data-only')}
+                                            className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm transition-all ${importMode === 'data-only'
+                                                ? 'bg-green-600 text-white border-green-600'
+                                                : 'border-gray-200 text-gray-600 hover:border-green-300 hover:bg-green-50'
+                                            }`}
+                                        >
+                                            <CheckCircle2 size={15} />
+                                            <div className="text-left">
+                                                <p className="font-medium">Data Only</p>
+                                                <p className={`text-xs ${importMode === 'data-only' ? 'text-green-100' : 'text-gray-400'}`}>นำเข้าข้อมูลอย่างเดียว (แนะนำ)</p>
+                                            </div>
+                                        </button>
+                                        <button
+                                            onClick={() => setImportMode('full')}
+                                            className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm transition-all ${importMode === 'full'
+                                                ? 'bg-orange-500 text-white border-orange-500'
+                                                : 'border-gray-200 text-gray-600 hover:border-orange-300 hover:bg-orange-50'
+                                            }`}
+                                        >
+                                            <AlertTriangle size={15} />
+                                            <div className="text-left">
+                                                <p className="font-medium">Full Restore</p>
+                                                <p className={`text-xs ${importMode === 'full' ? 'text-orange-100' : 'text-gray-400'}`}>สร้าง schema + ข้อมูลใหม่ทั้งหมด</p>
+                                            </div>
+                                        </button>
+                                    </div>
+                                </div>
+
                                 <input
                                     ref={fileInputRef}
                                     type="file"
@@ -737,7 +785,7 @@ export default function AdminSettingsPage() {
                                     {importLoading ? (
                                         <>
                                             <RefreshCw size={28} className="text-green-500 animate-spin" />
-                                            <span className="text-sm text-green-600 font-medium">กำลัง Import...</span>
+                                            <span className="text-sm text-green-600 font-medium">กำลัง Import... (อาจใช้เวลาสักครู่)</span>
                                         </>
                                     ) : (
                                         <>
@@ -746,7 +794,7 @@ export default function AdminSettingsPage() {
                                             </div>
                                             <div className="text-center">
                                                 <p className="text-sm font-medium text-gray-700">คลิกเพื่อเลือกไฟล์</p>
-                                                <p className="text-xs text-gray-400 mt-1">รองรับ <span className="font-semibold text-green-600">.sql</span> และ <span className="font-semibold text-blue-600">.json</span></p>
+                                                <p className="text-xs text-gray-400 mt-1">รองรับ <span className="font-semibold text-green-600">.sql</span> (pg_dump) และ <span className="font-semibold text-blue-600">.json</span></p>
                                             </div>
                                         </>
                                     )}
@@ -754,29 +802,47 @@ export default function AdminSettingsPage() {
 
                                 {/* Import Result */}
                                 {importResult && (
-                                    <div className={`p-4 rounded-xl border ${importResult.errors && importResult.errors.length > 0 ? 'bg-amber-50 border-amber-200' : 'bg-green-50 border-green-200'}`}>
-                                        <div className="flex items-center gap-2 mb-2">
+                                    <div className={`rounded-xl border overflow-hidden ${importResult.errors && importResult.errors.length > 0 ? 'border-amber-200' : 'border-green-200'}`}>
+                                        <div className={`flex items-center gap-2 px-4 py-3 ${importResult.errors && importResult.errors.length > 0 ? 'bg-amber-50' : 'bg-green-50'}`}>
                                             <CheckCircle2 size={16} className="text-green-600" />
                                             <span className="text-sm font-semibold text-gray-700">ผลลัพธ์การ Import</span>
+                                            {importResult.format && (
+                                                <span className="ml-auto text-xs px-2 py-0.5 bg-white rounded-full border border-gray-200 text-gray-500">
+                                                    {importResult.format === 'custom' ? 'pg_dump custom format' : importResult.format === 'plain' ? 'plain SQL' : importResult.format}
+                                                </span>
+                                            )}
                                         </div>
-                                        <div className="flex gap-4 text-sm mb-2">
-                                            <span className="text-gray-600">ทั้งหมด: <strong>{importResult.total}</strong> statements</span>
-                                            <span className="text-green-700">สำเร็จ: <strong>{importResult.executed}</strong></span>
-                                            <span className="text-amber-700">ข้าม: <strong>{importResult.skipped}</strong></span>
-                                        </div>
-                                        {importResult.errors && importResult.errors.length > 0 && (
-                                            <details className="mt-2">
-                                                <summary className="text-xs text-amber-700 cursor-pointer font-medium">ดู errors ({importResult.errors.length})</summary>
-                                                <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
-                                                    {importResult.errors.map((err, i) => (
-                                                        <div key={i} className="text-xs bg-white rounded p-2 border border-amber-200">
-                                                            <p className="text-gray-500 font-mono truncate">{err.statement}</p>
-                                                            <p className="text-red-600">{err.error}</p>
-                                                        </div>
-                                                    ))}
+                                        <div className="p-4 space-y-3">
+                                            <p className="text-sm text-gray-700">{importResult.message}</p>
+                                            {importResult.total !== undefined && (
+                                                <div className="flex gap-4 text-sm">
+                                                    <span className="text-gray-600">ทั้งหมด: <strong>{importResult.total}</strong></span>
+                                                    <span className="text-green-700">สำเร็จ: <strong>{importResult.executed}</strong></span>
+                                                    <span className="text-amber-700">ข้าม: <strong>{importResult.skipped}</strong></span>
                                                 </div>
-                                            </details>
-                                        )}
+                                            )}
+                                            {importResult.output && (
+                                                <details>
+                                                    <summary className="text-xs text-gray-500 cursor-pointer font-medium">ดู pg_restore output</summary>
+                                                    <pre className="mt-2 text-xs bg-gray-900 text-green-300 p-3 rounded-lg overflow-x-auto max-h-40 font-mono leading-relaxed">
+                                                        {importResult.output}
+                                                    </pre>
+                                                </details>
+                                            )}
+                                            {importResult.errors && importResult.errors.length > 0 && (
+                                                <details>
+                                                    <summary className="text-xs text-amber-700 cursor-pointer font-medium">ดู errors ({importResult.errors.length})</summary>
+                                                    <div className="mt-2 space-y-1 max-h-32 overflow-y-auto">
+                                                        {importResult.errors.map((err, i) => (
+                                                            <div key={i} className="text-xs bg-white rounded p-2 border border-amber-200">
+                                                                <p className="text-gray-500 font-mono truncate">{err.statement}</p>
+                                                                <p className="text-red-600">{err.error}</p>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </details>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
 
@@ -785,9 +851,9 @@ export default function AdminSettingsPage() {
                                         <AlertTriangle size={14} className="text-amber-600 mt-0.5 flex-shrink-0" />
                                         <div className="text-xs text-amber-700 space-y-1">
                                             <p className="font-semibold">หมายเหตุ:</p>
-                                            <p>• <strong>.sql</strong> — รองรับ INSERT, UPDATE, DELETE, CREATE TABLE, ALTER TABLE</p>
-                                            <p>• <strong>.json</strong> — รองรับไฟล์ที่ Export จากระบบนี้เท่านั้น</p>
-                                            <p>• DROP, TRUNCATE, และคำสั่งอันตรายจะถูกข้าม</p>
+                                            <p>• <strong>.sql (pg_dump)</strong> — ใช้ pg_restore restore ข้อมูลโดยตรง</p>
+                                            <p>• <strong>Data Only</strong> — นำเข้าเฉพาะ rows ไม่สร้าง/ลบ schema</p>
+                                            <p>• <strong>Full Restore</strong> — สร้าง schema ใหม่ + ข้อมูล (ระวัง: ข้อมูลเดิมอาจถูก overwrite)</p>
                                         </div>
                                     </div>
                                 </div>
