@@ -90,6 +90,10 @@ export default function Dashboard() {
             if (result.success && result.data) {
                 setTickets(result.data.tickets || []);
                 setTotalCount(result.data.count || 0);
+                // Update stats from the same response — no extra API call needed
+                if (result.data.statusCounts) {
+                    setStats(result.data.statusCounts);
+                }
             }
         } catch (error) {
             console.error('Error fetching tickets:', error);
@@ -113,22 +117,6 @@ export default function Dashboard() {
             console.error('Error fetching notifications:', error);
         }
     }, []);
-
-    // Fetch Stats from API (uses same filters as tickets)
-    const fetchStats = useCallback(async () => {
-        try {
-            const filters: { limit: number; startDate?: string; endDate?: string } = { limit: 1 };
-            if (startDate) filters.startDate = startDate;
-            if (endDate) filters.endDate = endDate;
-
-            const result = await apiClient.tickets.list(filters);
-            if (result.success && result.data && result.data.statusCounts) {
-                setStats(result.data.statusCounts);
-            }
-        } catch (error) {
-            console.error('Error fetching stats:', error);
-        }
-    }, [startDate, endDate]);
 
     // Load filters from localStorage on mount
     useEffect(() => {
@@ -171,17 +159,15 @@ export default function Dashboard() {
                 setUserRole(user.role);
                 setIsAdmin(user.role === 'ADMIN' || user.role === 'IT_ADMIN');
 
-                // Only fetch data if authenticated
-                await fetchStats();
-                await fetchRecentNewTickets();
-                await fetchTickets();
+                // Fetch tickets + notifications in parallel (stats come from fetchTickets response)
+                await Promise.all([fetchTickets(), fetchRecentNewTickets()]);
             } else {
                 router.push('/login');
                 return;
             }
         };
         init();
-    }, [router, fetchStats, fetchTickets, fetchRecentNewTickets]);
+    }, [router, fetchTickets, fetchRecentNewTickets]);
 
     // Check for refresh parameter (after creating a ticket)
     useEffect(() => {
@@ -194,9 +180,8 @@ export default function Dashboard() {
             // Set flag in sessionStorage for Fast Refresh scenarios
             sessionStorage.setItem('dashboardRefresh', 'true');
 
-            // Fetch immediately
+            // Fetch immediately (stats come from fetchTickets response)
             fetchTickets();
-            fetchStats();
             fetchRecentNewTickets();
 
             // Remove the query parameter to avoid repeated refreshes
@@ -209,7 +194,7 @@ export default function Dashboard() {
                 sessionStorage.removeItem('dashboardRefresh');
             }, 2000);
         }
-    }, [fetchTickets, fetchStats, fetchRecentNewTickets]);
+    }, [fetchTickets, fetchRecentNewTickets]);
 
     // Trigger Fetch on Filter Change
     useEffect(() => {
@@ -220,10 +205,9 @@ export default function Dashboard() {
     }, [fetchTickets]);
 
     const handleNewTicket = useCallback(() => {
-        fetchTickets(false); // Fetch background data without full loading spinner
-        fetchStats();
+        fetchTickets(false); // Fetch background data without full loading spinner (stats come from response)
         fetchRecentNewTickets();
-    }, [fetchTickets, fetchStats, fetchRecentNewTickets]);
+    }, [fetchTickets, fetchRecentNewTickets]);
 
     // SSE Connection for real-time notifications
     useSSENotifications('it', isAdmin, {

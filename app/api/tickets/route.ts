@@ -155,20 +155,18 @@ export async function GET(request: NextRequest) {
       };
     }
 
-    // Get counts for non-DONE statuses
-    const nonDoneStatusCounts = await prisma.ticket.groupBy({
-      by: ['status'],
-      where: {
-        ...where,
-        status: { not: 'DONE' }
-      },
-      _count: {
-        status: true,
-      },
-    });
-
-    // Get DONE count (with date filter or MTD)
-    const doneCount = await prisma.ticket.count({ where: doneWhere });
+    // Run both status queries in parallel
+    const [nonDoneStatusCounts, doneCount] = await Promise.all([
+      prisma.ticket.groupBy({
+        by: ['status'],
+        where: {
+          ...where,
+          status: { not: 'DONE' }
+        },
+        _count: { status: true },
+      }),
+      prisma.ticket.count({ where: doneWhere }),
+    ]);
 
     // Format status counts
     const counts = {
