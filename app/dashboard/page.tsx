@@ -3,7 +3,7 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
-import { Plus, Search, AlertCircle, Clock, CheckCircle, Download, Users, Bell, BarChart, ChevronDown, ChevronLeft, ChevronRight, XCircle, PauseCircle, Calendar, X, FilterX } from 'lucide-react';
+import { Plus, Search, AlertCircle, Clock, CheckCircle, Download, Users, Bell, BarChart, ChevronDown, ChevronLeft, ChevronRight, XCircle, PauseCircle, Calendar, X, FilterX, Settings } from 'lucide-react';
 import { exportToExcel } from '@/lib/exportToExcel';
 import { useRouter, usePathname } from 'next/navigation';
 import { toast } from 'sonner';
@@ -57,9 +57,9 @@ export default function Dashboard() {
 
 
     // Fetch Paginated Tickets
-    const fetchTickets = useCallback(async () => {
+    const fetchTickets = useCallback(async (showLoading = true) => {
         try {
-            setLoading(true);
+            if (showLoading) setLoading(true);
 
             const offset = (currentPage - 1) * ITEMS_PER_PAGE;
             const filters: {
@@ -94,7 +94,7 @@ export default function Dashboard() {
         } catch (error) {
             console.error('Error fetching tickets:', error);
         } finally {
-            setLoading(false);
+            if (showLoading) setLoading(false);
         }
     }, [currentPage, searchQuery, filterStatus, filterType, startDate, endDate, myTicketsFilter]);
 
@@ -219,39 +219,16 @@ export default function Dashboard() {
         return () => clearTimeout(timer);
     }, [fetchTickets]);
 
+    const handleNewTicket = useCallback(() => {
+        fetchTickets(false); // Fetch background data without full loading spinner
+        fetchStats();
+        fetchRecentNewTickets();
+    }, [fetchTickets, fetchStats, fetchRecentNewTickets]);
+
     // SSE Connection for real-time notifications
     useSSENotifications('it', isAdmin, {
-        onNewTicket: () => {
-            fetchTickets();
-            fetchStats();
-            fetchRecentNewTickets();
-        }
+        onNewTicket: handleNewTicket
     });
-
-    // Refresh when page becomes visible (e.g., after creating a ticket)
-    useEffect(() => {
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') {
-                fetchTickets();
-                fetchStats();
-                fetchRecentNewTickets();
-            }
-        };
-
-        const handleFocus = () => {
-            fetchTickets();
-            fetchStats();
-            fetchRecentNewTickets();
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        window.addEventListener('focus', handleFocus);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            window.removeEventListener('focus', handleFocus);
-        };
-    }, [fetchTickets, fetchStats, fetchRecentNewTickets]);
 
     // Export All Matching Tickets
     const handleExportToExcel = async () => {
@@ -358,6 +335,16 @@ export default function Dashboard() {
 
                     {/* Right: Actions */}
                     <div className="flex items-center gap-2 sm:gap-3">
+                        {/* System Settings - only for admin */}
+                        {userRole === 'ADMIN' && (
+                            <Link
+                                href="/dashboard/admin/settings"
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="ตั้งค่าระบบ"
+                            >
+                                <Settings size={20} className="text-gray-700" />
+                            </Link>
+                        )}
                         {/* Manage Users - only for admin and it_admin */}
                         {(userRole === 'ADMIN' || userRole === 'IT_ADMIN') && (
                             <Link

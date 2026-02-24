@@ -5,7 +5,7 @@ import { apiClient } from '@/lib/api-client';
 import Link from 'next/link';
 import {
     Plus, Search, AlertCircle, Clock, CheckCircle, Download, Users, Bell, BarChart, ChevronDown, ChevronLeft, ChevronRight,
-    FilterX, PauseCircle, XCircle, Calendar, X
+    FilterX, PauseCircle, XCircle, Calendar, X, Settings
 } from 'lucide-react';
 import { exportToExcel } from '@/lib/exportToExcel';
 import { useRouter, usePathname } from 'next/navigation';
@@ -60,9 +60,9 @@ export default function Dashboard() {
     const [userNotificationCount, setUserNotificationCount] = useState(0);
 
     // Fetch Paginated Tickets
-    const fetchTickets = useCallback(async () => {
+    const fetchTickets = useCallback(async (showLoading = true) => {
         try {
-            setLoading(true);
+            if (showLoading) setLoading(true);
 
             const offset = (currentPage - 1) * ITEMS_PER_PAGE;
             const filters: {
@@ -102,7 +102,7 @@ export default function Dashboard() {
             setTickets([]);
             setTotalCount(0);
         } finally {
-            setLoading(false);
+            if (showLoading) setLoading(false);
         }
     }, [searchQuery, filterType, filterStatus, startDate, endDate, currentPage, myTicketsFilter]);
 
@@ -230,13 +230,15 @@ export default function Dashboard() {
     }, [fetchTickets]);
 
 
+    const handleNewTicket = useCallback(() => {
+        fetchTickets(false); // Fetch background data without full loading spinner
+        fetchStats();
+        fetchRecentNewTickets();
+    }, [fetchTickets, fetchStats, fetchRecentNewTickets]);
+
     // SSE Connection for real-time notifications
     useSSENotifications('engineer', isAdmin, {
-        onNewTicket: () => {
-            fetchTickets();
-            fetchStats();
-            fetchRecentNewTickets();
-        }
+        onNewTicket: handleNewTicket
     });
 
 
@@ -341,6 +343,16 @@ export default function Dashboard() {
 
                     {/* Right: Actions */}
                     <div className="flex items-center gap-2 sm:gap-3">
+                        {/* System Settings - only for admin */}
+                        {userRole === 'ADMIN' && (
+                            <Link
+                                href="/dashboard/admin/settings"
+                                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                                title="ตั้งค่าระบบ"
+                            >
+                                <Settings size={20} className="text-gray-700" />
+                            </Link>
+                        )}
                         {/* Manage Users - only for admin, NOT for engineer_admin */}
                         {userRole === 'admin' && (
                             <Link

@@ -9,6 +9,23 @@ import { toast } from 'sonner';
 import { Select, Input, Textarea, FileUpload, Button } from '@/components/ui';
 import { IT_AREAS, IT_DAMAGE_TYPES, DEPARTMENTS } from '@/lib/constants';
 import { itTicketSchema } from '@/lib/validation';
+import { BASE_PATH } from '@/lib/constants';
+
+async function fetchOptions(category: string, fallback: readonly string[]): Promise<string[]> {
+    try {
+        const res = await fetch(`${BASE_PATH}/api/admin/settings/options/public?category=${category}`, {
+            credentials: 'include',
+        });
+        if (!res.ok) return [...fallback];
+        const data = await res.json();
+        if (data.success && data.data?.length > 0) {
+            return data.data.map((o: { label: string }) => o.label);
+        }
+    } catch {
+        // fall through
+    }
+    return [...fallback];
+}
 
 export default function CreateTicketPage() {
     // Set page title
@@ -26,6 +43,10 @@ export default function CreateTicketPage() {
     const [username, setUsername] = useState('');
     const router = useRouter();
 
+    const [areaOptions, setAreaOptions] = useState<string[]>([...IT_AREAS]);
+    const [damageTypeOptions, setDamageTypeOptions] = useState<string[]>([...IT_DAMAGE_TYPES]);
+    const [departmentOptions, setDepartmentOptions] = useState<string[]>([...DEPARTMENTS]);
+
     useEffect(() => {
         const init = async () => {
             const result = await apiClient.auth.getUser();
@@ -37,6 +58,18 @@ export default function CreateTicketPage() {
         };
         init();
     }, [router]);
+
+    useEffect(() => {
+        Promise.all([
+            fetchOptions('IT_AREA', IT_AREAS),
+            fetchOptions('IT_DAMAGE_TYPE', IT_DAMAGE_TYPES),
+            fetchOptions('DEPARTMENT', DEPARTMENTS),
+        ]).then(([areas, damages, depts]) => {
+            setAreaOptions(areas);
+            setDamageTypeOptions(damages);
+            setDepartmentOptions(depts);
+        });
+    }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -124,7 +157,7 @@ export default function CreateTicketPage() {
                                 label="Area"
                                 value={area}
                                 onChange={setArea}
-                                options={IT_AREAS}
+                                options={areaOptions}
                                 placeholder="Select Area"
                                 required
                             />
@@ -133,7 +166,7 @@ export default function CreateTicketPage() {
                                 label="Type of Damage"
                                 value={typeOfDamage}
                                 onChange={setTypeOfDamage}
-                                options={IT_DAMAGE_TYPES}
+                                options={damageTypeOptions}
                                 placeholder="Select Type"
                                 required
                             />
@@ -143,7 +176,7 @@ export default function CreateTicketPage() {
                             label="Department (Request By)"
                             value={department}
                             onChange={setDepartment}
-                            options={DEPARTMENTS}
+                            options={departmentOptions}
                             placeholder="Select Department"
                             required
                         />
