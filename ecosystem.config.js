@@ -15,6 +15,7 @@ module.exports = {
       env: {
         NODE_ENV: 'production',
         PORT: 3000,
+        UPLOAD_DIR: 'F:\\EGPB-Uploads',
         // DATABASE_URL จะถูกโหลดจาก .env file อัตโนมัติ
       },
 
